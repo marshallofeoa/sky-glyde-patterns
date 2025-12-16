@@ -1,0 +1,8 @@
+{
+  "name": "sky-glyde-design-patterns",
+  "version": "1.0.0",
+  "description": "Design Patterns Database for Sky-Glyde",
+  "scripts": {
+    "build": "echo 'Static deployment - no build needed'"
+  }
+}

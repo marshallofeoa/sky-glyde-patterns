@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky-Glyde Design Patterns Database</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #1a1a1a;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .filters {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .filter-group select {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .patterns-grid {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+        
+        .pattern-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .pattern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .pattern-header {
+            margin-bottom: 15px;
+        }
+        
+        .pattern-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 8px 0;
+        }
+        
+        .pattern-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .tag-category {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .tag-platform {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+        
+        .tag-status {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .pattern-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .pattern-examples {
+            margin-bottom: 15px;
+        }
+        
+        .pattern-examples h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            margin: 0 0 8px 0;
+        }
+        
+        .example-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .example-list li {
+            font-size: 13px;
+            color: #333;
+            padding: 4px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .example-list li:before {
+            content: "•";
+            color: #1a73e8;
+            font-weight: bold;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        
+        .pattern-implementation {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .pattern-implementation h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin: 0 0 8px 0;
+        }
+        
+        .pattern-implementation p {
+            font-size: 13px;
+            color: #333;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .pattern-metrics {
+            display: flex;
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .metric {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a73e8;
+            margin-top: 4px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sky-Glyde Design Patterns Database</h1>
+        <p>Competitive analysis patterns for autonomous ground and aerial transportation services</p>
+    </div>
+    
+    <div class="filters">
+        <div class="filter-group">
+            <label>Category:</label>
+            <select id="categoryFilter" onchange="filterPatterns()">
+                <option value="all">All Categories</option>
+                <option value="terminology">Terminology & Language</option>
+                <option value="safety">Safety Messaging</option>
+                <option value="trust">Trust Building</option>
+                <option value="onboarding">Onboarding & Education</option>
+                <option value="integration">Multi-Modal Integration</option>
+                <option value="visual">Visual Design</option>
+                <option value="pricing">Pricing Communication</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Platform:</label>
+            <select id="platformFilter" onchange="filterPatterns()">
+                <option value="all">All Platforms</option>
+                <option value="ground">Ground Autonomous</option>
+                <option value="aerial">Aerial (eVTOL)</option>
+                <option value="both">Both</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Priority:</label>
+            <select id="priorityFilter" onchange="filterPatterns()">
+                <option value="all">All Priorities</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="patterns-grid" id="patternsGrid">
+        <!-- Pattern 1 -->
+        <div class="pattern-card" data-category="terminology" data-platform="both" data-priority="high">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Branded Autonomous Entity</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Terminology</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">High Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Create a personified, branded name for the autonomous system that makes the technology feel approachable and trustworthy rather than cold and technical.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Waymo: "Waymo Driver" - treats system as active decision-maker</li>
+                    <li>Lyft: "Hybrid network" - positions AVs alongside drivers</li>
+                    <li>Wisk: "Self-flying" system with ground supervisors</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Create "Sky-Glyde Flight Supervision System" - combines personification with emphasis on human oversight from ground control.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">87%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">High</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 2 -->
+        <div class="pattern-card" data-category="safety" data-platform="both" data-priority="high">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Cumulative Statistics Messaging</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Safety Messaging</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">High Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Lead with impressive cumulative statistics (miles driven, rides completed, flights made) to build trust through proven track record.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Waymo: "100 million miles of real-world driving"</li>
+                    <li>Baidu: "11+ million rides completed"</li>
+                    <li>EHang: "40,000+ safe flights"</li>
+                    <li>Lyft: "96% want to ride again"</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Track and prominently display: total flight hours, successful autonomous landings, perfect safety record days, and passenger satisfaction scores.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">92%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">High</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 3 -->
+        <div class="pattern-card" data-category="trust" data-platform="both" data-priority="high">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Progressive Disclosure</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Trust Building</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">High Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Introduce autonomous features gradually through demonstration, explanation, then familiarity rather than overwhelming users upfront.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Waymo: Show → Explain → Familiarize approach</li>
+                    <li>Uber/Lyft: Settings-based opt-in with confirmation</li>
+                    <li>Joby: Piloted flights before autonomous transition</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Start with vertiport tours → supervised demo flights → tourist routes → commuter services. Allow users to progress at their comfort level.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">78%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">High</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 4 -->
+        <div class="pattern-card" data-category="onboarding" data-platform="aerial" data-priority="high">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Familiar Analogies</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Onboarding</span>
+                    <span class="tag tag-platform">Aerial</span>
+                    <span class="tag tag-status">High Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Use familiar ground transportation comparisons to make aerial vehicles feel less intimidating and more accessible.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Joby: "Like getting into an SUV"</li>
+                    <li>All eVTOLs: "Air taxi" instead of aircraft</li>
+                    <li>Uber integration: "Aerial rideshare"</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Frame as "your Glyde ride in the sky" and use car-like terminology for boarding, seating, and journey stages.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">95%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">High</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 5 -->
+        <div class="pattern-card" data-category="integration" data-platform="both" data-priority="high">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Seamless Multi-Modal Integration</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Integration</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">High Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Embed autonomous options within existing multi-modal platforms rather than creating standalone services.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Uber: AVs alongside bikes, scooters, transit</li>
+                    <li>Lyft: "Transportation-as-a-service" approach</li>
+                    <li>Baidu: Integration with maps and ecosystem</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Position within Glyde app with automatic ground connections, unified payment, and journey planning showing total door-to-door time.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">45%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">High</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 6 -->
+        <div class="pattern-card" data-category="visual" data-platform="both" data-priority="medium">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Blue Zone Visualization</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Visual Design</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">Medium Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Use blue-shaded areas on maps to clearly indicate where autonomous vehicles can operate, pick up, and drop off passengers.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Waymo: Blue pickup zones in app</li>
+                    <li>Uber/Lyft: Shaded autonomous coverage areas</li>
+                    <li>Standard pattern across industry</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Blue zones for vertiports with altitude layers shown. Include weather-affected zones in different shades.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">89%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">Medium</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 7 -->
+        <div class="pattern-card" data-category="onboarding" data-platform="aerial" data-priority="high">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Command Center Transparency</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Onboarding</span>
+                    <span class="tag tag-platform">Aerial</span>
+                    <span class="tag tag-status">High Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Show users the human oversight element through virtual tours or live views of ground control centers monitoring flights.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>EHang: Physical command center tours</li>
+                    <li>Wisk: Emphasis on ground supervisors</li>
+                    <li>Waymo: Remote assistance availability</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Virtual command center tour in app, live supervisor status indicator during flights, and "meet your flight supervisor" profiles.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">34%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">High</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 8 -->
+        <div class="pattern-card" data-category="pricing" data-platform="aerial" data-priority="medium">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Time Value Positioning</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Pricing</span>
+                    <span class="tag tag-platform">Aerial</span>
+                    <span class="tag tag-status">Medium Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Justify premium pricing through time savings and productivity gains rather than competing on cost with ground transport.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Joby: "Save 2 hours in traffic"</li>
+                    <li>Lilium: Business productivity focus</li>
+                    <li>Compare to Uber Black, not UberX</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Show time saved calculator, productivity metrics, and "what you can do with extra time" messaging.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">72%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">Medium</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 9 -->
+        <div class="pattern-card" data-category="trust" data-platform="both" data-priority="medium">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Real-Time Transparency</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Trust Building</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">Medium Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Show what the autonomous system "sees" and why it makes decisions to build passenger confidence during the journey.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Waymo: Shows detected objects and path</li>
+                    <li>Green pathways for safe routes</li>
+                    <li>Explanations for route changes</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Show flight path, weather detection, other aircraft awareness, and simple explanations for altitude/route changes.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">41%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">Medium</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 10 -->
+        <div class="pattern-card" data-category="terminology" data-platform="ground" data-priority="low">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Active Voice Descriptions</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Terminology</span>
+                    <span class="tag tag-platform">Ground</span>
+                    <span class="tag tag-status">Low Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Use active voice to describe vehicle actions ("the vehicle sees/waits/follows") rather than passive technical descriptions.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Waymo: "Your vehicle is waiting for pedestrians"</li>
+                    <li>Not: "Pedestrian detection activated"</li>
+                    <li>Creates sense of intelligence and care</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>"Your flight is adjusting for smoother air" instead of "Turbulence avoidance system engaged."</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">67%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">Low</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 11 -->
+        <div class="pattern-card" data-category="safety" data-platform="both" data-priority="high">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Redundancy Emphasis</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Safety Messaging</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">High Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Highlight multiple backup systems and fail-safe designs to address safety concerns without using fear-based messaging.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Joby: "6 independent rotors"</li>
+                    <li>Lilium: "36 ducted fans"</li>
+                    <li>Waymo: "Multiple sensor types"</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Visual showing backup systems, "triple-redundant flight controls," and "multiple landing options always available."</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">84%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">High</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pattern 12 -->
+        <div class="pattern-card" data-category="onboarding" data-platform="both" data-priority="medium">
+            <div class="pattern-header">
+                <h3 class="pattern-name">Step-by-Step Education</h3>
+                <div class="pattern-tags">
+                    <span class="tag tag-category">Onboarding</span>
+                    <span class="tag tag-platform">Both Platforms</span>
+                    <span class="tag tag-status">Medium Priority</span>
+                </div>
+            </div>
+            <p class="pattern-description">Provide contextual, skippable tutorials that appear just-in-time rather than overwhelming users with upfront education.</p>
+            <div class="pattern-examples">
+                <h4>Examples in Use</h4>
+                <ul class="example-list">
+                    <li>Lyft: "Step-by-step education prompts"</li>
+                    <li>Uber: Optional video tutorials</li>
+                    <li>In-journey tooltips and hints</li>
+                </ul>
+            </div>
+            <div class="pattern-implementation">
+                <h4>Sky-Glyde Implementation</h4>
+                <p>Progressive tutorials: first booking, first vertiport visit, first flight. Smart system remembers user education level.</p>
+            </div>
+            <div class="pattern-metrics">
+                <div class="metric">
+                    <div class="metric-label">Adoption Rate</div>
+                    <div class="metric-value">56%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Impact</div>
+                    <div class="metric-value">Medium</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function filterPatterns() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const platformFilter = document.getElementById('platformFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            
+            const cards = document.querySelectorAll('.pattern-card');
+            
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const platform = card.getAttribute('data-platform');
+                const priority = card.getAttribute('data-priority');
+                
+                const categoryMatch = categoryFilter === 'all' || category === categoryFilter;
+                const platformMatch = platformFilter === 'all' || platform === platformFilter;
+                const priorityMatch = priorityFilter === 'all' || priority === priorityFilter;
+                
+                if (categoryMatch && platformMatch && priorityMatch) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
