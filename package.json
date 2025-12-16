@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Design Patterns Database for Sky-Glyde",
   "scripts": {
-    "build": "echo 'Static deployment - no build needed'"
+    "buildCommand": "echo 'Static site - no build needed'",
+  "outputDirectory": "."
   }
 }
